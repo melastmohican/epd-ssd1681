@@ -1,0 +1,17 @@
+[package]
+authors = ["Mariusz Jurgielewicz <mordor@mail.com>"]
+name = "epd-ssd1681"
+edition = "2021"
+version = "0.1.0"
+
+readme = "README.md"
+keywords = ["embedded", "epd", "epaper", "display", "ssd1681"]
+categories = ["embedded", "no-std"]
+
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+embedded-graphics = "0.8.1"
+embedded-graphics-core = "0.4.0"
+embedded-hal = "1.0.0"
+
