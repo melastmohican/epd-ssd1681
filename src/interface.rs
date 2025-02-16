@@ -34,7 +34,13 @@ pub(crate) struct DisplayInterface<SPI, CS, BUSY, DC, RST> {
 impl<SPI, CS, BUSY, DC, RST> DisplayInterface<SPI, CS, BUSY, DC, RST> {
     /// Create and initialize display
     pub fn new(spi: SPI, cs: CS, busy: BUSY, dc: DC, rst: RST) -> Self {
-        DisplayInterface { spi,cs, busy, dc, rst }
+        DisplayInterface {
+            spi,
+            cs,
+            busy,
+            dc,
+            rst,
+        }
     }
 }
 

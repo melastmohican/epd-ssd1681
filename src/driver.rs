@@ -93,9 +93,9 @@ where
         // TODO: allow non-white background color
         let color = 0xFF;
 
-
         self.interface.cmd(Cmd::WRITE_BWRAM)?;
-        self.interface.data_x_times(color, u32::from(WIDTH) / 8 * u32::from(HEIGHT))?;
+        self.interface
+            .data_x_times(color, u32::from(WIDTH) / 8 * u32::from(HEIGHT))?;
         Ok(())
     }
 
@@ -129,17 +129,30 @@ where
         assert!(start_x < end_x);
         assert!(start_y < end_y);
 
-        self.interface.cmd_with_data(Cmd::SET_RAMXPOS, &[(start_x >> 3) as u8, (end_x >> 3) as u8])?;
-        self.interface.cmd_with_data(Cmd::SET_RAMYPOS, &[start_y as u8, (start_y >> 8) as u8, end_y as u8, (end_y >> 8) as u8, ])?;
+        self.interface.cmd_with_data(
+            Cmd::SET_RAMXPOS,
+            &[(start_x >> 3) as u8, (end_x >> 3) as u8],
+        )?;
+        self.interface.cmd_with_data(
+            Cmd::SET_RAMYPOS,
+            &[
+                start_y as u8,
+                (start_y >> 8) as u8,
+                end_y as u8,
+                (end_y >> 8) as u8,
+            ],
+        )?;
         Ok(())
     }
 
     fn set_ram_counter(&mut self, x: u32, y: u32) -> Result<(), DisplayError> {
         // x is positioned in bytes, so the last 3 bits which show the position inside a byte in the ram
         // aren't relevant
-        self.interface.cmd_with_data(Cmd::SET_RAMXCOUNT, &[(x >> 3) as u8])?;
+        self.interface
+            .cmd_with_data(Cmd::SET_RAMXCOUNT, &[(x >> 3) as u8])?;
         // 2 Databytes: A[7:0] & 0..A[8]
-        self.interface.cmd_with_data(Cmd::SET_RAMYCOUNT, &[y as u8, (y >> 8) as u8])?;
+        self.interface
+            .cmd_with_data(Cmd::SET_RAMYCOUNT, &[y as u8, (y >> 8) as u8])?;
         Ok(())
     }
 

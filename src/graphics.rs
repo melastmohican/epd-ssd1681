@@ -67,7 +67,7 @@ impl Display {
                 { buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize) },
             >::new(),
             rotation: DisplayRotation::default(),
-            is_inverted: false,
+            is_inverted: true,
         }
     }
 
@@ -80,7 +80,7 @@ impl Display {
         };
 
         let _ = self.black_fbuf.clear(black);
-        let _ =    self.red_fbuf.clear(red);
+        let _ = self.red_fbuf.clear(red);
     }
 
     fn set_pixel(&mut self, x: u32, y: u32, color: EpdColor) {
@@ -115,16 +115,27 @@ impl Display {
         }
     }
 
-    fn set_rotation(&mut self, rotation: DisplayRotation) {
+    pub fn set_rotation(&mut self, rotation: DisplayRotation) {
         self.rotation = rotation;
     }
 
-    fn rotation(&self) -> DisplayRotation {
+    pub fn rotation(&self) -> DisplayRotation {
         self.rotation
     }
 
-    fn is_inverted(&self) -> bool {
+    pub fn is_inverted(&self) -> bool {
         self.is_inverted
+    }
+
+    pub fn black_data(
+        &self,
+    ) -> &[u8; { buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize) }] {
+        self.black_fbuf.data()
+    }
+    pub fn red_data(
+        &self,
+    ) -> &[u8; { buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize) }] {
+        self.red_fbuf.data()
     }
 }
 
@@ -170,6 +181,3 @@ impl OriginDimensions for Display {
         }
     }
 }
-
-
-

@@ -1,11 +1,11 @@
 #![no_std]
 
-mod cmd;
-mod color;
-mod driver;
-mod flag;
-mod graphics;
-mod interface;
+pub mod cmd;
+pub mod color;
+pub mod driver;
+pub mod flag;
+pub mod graphics;
+pub mod interface;
 
 /// Maximum display height this driver supports
 pub const HEIGHT: u8 = 200;
