@@ -20,6 +20,8 @@
 #![no_main]
 
 use embedded_hal::delay::DelayNs;
+use defmt_rtt as _;
+use panic_probe as _;
 use rp_pico as bsp;
 
 use defmt::{info, println};
@@ -33,7 +35,7 @@ use embedded_graphics_core::geometry::Size;
 use embedded_graphics_core::Drawable;
 use embedded_hal::digital::StatefulOutputPin;
 use embedded_hal_bus::spi::ExclusiveDevice;
-use epd_ssd1681::color::EpdColor::{Black, Red, White};
+use epd_ssd1681::color::TriColor::{Black, Red, White};
 use epd_ssd1681::driver::Ssd1681;
 use epd_ssd1681::graphics::{Display, DisplayRotation};
 use rp_pico::hal::clocks::init_clocks_and_plls;
@@ -100,6 +102,7 @@ fn main() -> ! {
     let mut spi_device = ExclusiveDevice::new_no_delay(spi, cs0).unwrap();
 
     // Initialize display controller
+    println!("Initialize display controller");
     let mut ssd1681 = Ssd1681::new(&mut spi_device, cs, busy, dc, rst, &mut delay).unwrap();
 
     // Clear frames on the display driver
@@ -107,9 +110,12 @@ fn main() -> ! {
     ssd1681.clear_bw_frame();
     println!("Clear red frame to display");
     ssd1681.clear_red_frame();
+    println!("Update display");
+    ssd1681.display_frame(&mut delay);
 
     // Create buffer for black and white
     let mut display = Display::new();
+    display.clear(White);
 
     let style = MonoTextStyleBuilder::new()
         .font(&FONT_6X9)
@@ -129,20 +135,19 @@ fn main() -> ! {
         .into_styled(PrimitiveStyle::with_fill(Red))
         .draw(&mut display)
         .unwrap();
-
-    println!("Send bw frame to display");
-    ssd1681.update_bw_frame(display.black_data());
-
+    
     Circle::new(Point::new(100, 100), 20)
         .into_styled(PrimitiveStyle::with_fill(Red))
         .draw(&mut display)
         .unwrap();
 
+    println!("Send bw frame to display");
+    ssd1681.update_bw_frame(display.black_data());
     println!("Send red frame to display");
     ssd1681.update_red_frame(display.red_data());
 
     println!("Update display");
-    let _ = ssd1681.display_frame(&mut delay);
+    ssd1681.display_frame(&mut delay);
 
     println!("Done");
 

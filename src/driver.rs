@@ -5,6 +5,7 @@ use crate::{HEIGHT, WIDTH};
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 use embedded_hal::spi::SpiDevice;
+use crate::color::TriColor::{Red, White};
 
 /// A configured display with a hardware interface.
 pub struct Ssd1681<SPI, CS, BUSY, DC, RST> {
@@ -89,9 +90,8 @@ where
     /// Make the whole black and white frame on the display driver white
     pub fn clear_bw_frame(&mut self) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-
-        // TODO: allow non-white background color
-        let color = 0xFF;
+        
+        let color = White.into();
 
         self.interface.cmd(Cmd::WRITE_BWRAM)?;
         self.interface
@@ -102,9 +102,8 @@ where
     /// Make the whole red frame on the display driver white
     pub fn clear_red_frame(&mut self) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-
-        // TODO: allow non-white background color
-        let color = 0x00;
+        
+        let color = Red.into();
 
         self.interface.cmd(Cmd::WRITE_REDRAM)?;
         self.interface
@@ -155,12 +154,4 @@ where
             .cmd_with_data(Cmd::SET_RAMYCOUNT, &[y as u8, (y >> 8) as u8])?;
         Ok(())
     }
-
-    // pub fn wake_up<DELAY: DelayMs<u8>>(
-    //     &mut self,
-    //     spi: &mut SPI,
-    //     delay: &mut DELAY,
-    // ) -> Result<(), SPI::Error> {
-    //     todo!()
-    // }
 }

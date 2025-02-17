@@ -1,4 +1,4 @@
-use crate::color::EpdColor;
+use crate::color::TriColor;
 use crate::{HEIGHT, WIDTH};
 use embedded_graphics::framebuffer::{buffer_size, Framebuffer};
 use embedded_graphics_core::draw_target::DrawTarget;
@@ -49,7 +49,7 @@ pub struct Display {
 
 impl Display {
     pub fn new() -> Self {
-        Self {
+        Display {
             black_fbuf: Framebuffer::<
                 BinaryColor,
                 _,
@@ -72,46 +72,34 @@ impl Display {
     }
 
     /// Clear the buffers, filling them a single color.
-    pub fn clear(&mut self, color: EpdColor) {
+    pub fn clear(&mut self, color: TriColor) {
         let (black, red) = match color {
-            EpdColor::White => (BinaryColor::On, BinaryColor::Off),
-            EpdColor::Black => (BinaryColor::Off, BinaryColor::Off),
-            EpdColor::Red => (BinaryColor::On, BinaryColor::On),
+            TriColor::White => (BinaryColor::On, BinaryColor::Off),
+            TriColor::Black => (BinaryColor::Off, BinaryColor::Off),
+            TriColor::Red => (BinaryColor::On, BinaryColor::On),
         };
 
         let _ = self.black_fbuf.clear(black);
         let _ = self.red_fbuf.clear(red);
     }
 
-    fn set_pixel(&mut self, x: u32, y: u32, color: EpdColor) {
-        let (index, bit) = self.from_rotation(x, y, WIDTH as u32, HEIGHT as u32);
+    fn set_pixel(&mut self, x: u32, y: u32, color: TriColor) {
+        let (index, bit) = find_position(x, y, WIDTH as u32, HEIGHT as u32, self.rotation);
         let index = index as usize;
 
         match color {
-            EpdColor::Black => {
+            TriColor::Black => {
                 self.black_fbuf.data_mut()[index] &= !bit;
                 self.red_fbuf.data_mut()[index] &= !bit;
             }
-            EpdColor::White => {
+            TriColor::White => {
                 self.black_fbuf.data_mut()[index] |= bit;
                 self.red_fbuf.data_mut()[index] &= !bit;
             }
-            EpdColor::Red => {
+            TriColor::Red => {
                 self.black_fbuf.data_mut()[index] |= bit;
                 self.red_fbuf.data_mut()[index] |= bit;
             }
-        }
-    }
-
-    fn from_rotation(&mut self, x: u32, y: u32, width: u32, height: u32) -> (u32, u8) {
-        match self.rotation {
-            DisplayRotation::Rotate0 => (x / 8 + (width / 8) * y, 0x80 >> (x % 8)),
-            DisplayRotation::Rotate90 => ((width - 1 - y) / 8 + (width / 8) * x, 0x01 << (y % 8)),
-            DisplayRotation::Rotate180 => (
-                ((width / 8) * height - 1) - (x / 8 + (width / 8) * y),
-                0x01 << (x % 8),
-            ),
-            DisplayRotation::Rotate270 => (y / 8 + (height - 1 - x) * (width / 8), 0x80 >> (y % 8)),
         }
     }
 
@@ -139,8 +127,40 @@ impl Display {
     }
 }
 
+fn find_rotation(x: u32, y: u32, width: u32, height: u32, rotation: DisplayRotation) -> (u32, u32) {
+    let nx;
+    let ny;
+    match rotation {
+        DisplayRotation::Rotate0 => {
+            nx = x;
+            ny = y;
+        }
+        DisplayRotation::Rotate90 => {
+            nx = width - 1 - y;
+            ny = x;
+        }
+        DisplayRotation::Rotate180 => {
+            nx = width - 1 - x;
+            ny = height - 1 - y;
+        }
+        DisplayRotation::Rotate270 => {
+            nx = y;
+            ny = height - 1 - x;
+        }
+    }
+    (nx, ny)
+}
+
+fn find_position(x: u32, y: u32, width: u32, height: u32, rotation: DisplayRotation) -> (u32, u8) {
+    let (nx, ny) = find_rotation(x, y, width, height, rotation);
+    (
+        nx / 8 + ((width + 7) / 8) * ny,
+        0x80 >> (nx % 8),
+    )
+}
+
 impl DrawTarget for Display {
-    type Color = EpdColor;
+    type Color = TriColor;
     type Error = core::convert::Infallible;
 
     fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
@@ -149,16 +169,16 @@ impl DrawTarget for Display {
     {
         for Pixel(point, color) in pixels.into_iter() {
             match color {
-                EpdColor::White => {
+                TriColor::White => {
                     self.black_fbuf.draw_iter([Pixel(point, BinaryColor::On)])?;
                     self.red_fbuf.draw_iter([Pixel(point, BinaryColor::Off)])?;
                 }
-                EpdColor::Black => {
+                TriColor::Black => {
                     self.black_fbuf
                         .draw_iter([Pixel(point, BinaryColor::Off)])?;
                     self.red_fbuf.draw_iter([Pixel(point, BinaryColor::Off)])?;
                 }
-                EpdColor::Red => {
+                TriColor::Red => {
                     self.black_fbuf.draw_iter([Pixel(point, BinaryColor::On)])?;
                     self.red_fbuf.draw_iter([Pixel(point, BinaryColor::On)])?;
                 }
