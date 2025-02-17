@@ -54,8 +54,11 @@ where
 {
     /// Basic function for sending commands
     pub(crate) fn cmd(&mut self, command: u8) -> Result<(), DisplayError> {
+        // high for commands
+        self.cs.set_high().map_err(|_| DisplayError::CSError)?;
         // low for commands
         self.dc.set_low().map_err(|_| DisplayError::DCError)?;
+        self.cs.set_low().map_err(|_| DisplayError::CSError)?;
 
         // Transfer the command over spi
         self.spi

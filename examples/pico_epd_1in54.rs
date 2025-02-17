@@ -18,9 +18,8 @@
 
 #![no_std]
 #![no_main]
-#[cfg(target_os = "none")]
+
 use defmt::{info, println};
-#[cfg(target_os = "none")]
 use defmt_rtt as _;
 use embedded_graphics::geometry::Point;
 use embedded_graphics::mono_font::ascii::FONT_6X9;
@@ -30,29 +29,20 @@ use embedded_graphics::primitives::{Circle, PrimitiveStyle, Rectangle};
 use embedded_graphics::text::Text;
 use embedded_graphics_core::geometry::Size;
 use embedded_graphics_core::Drawable;
-#[cfg(target_os = "none")]
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::StatefulOutputPin;
 use embedded_hal_bus::spi::ExclusiveDevice;
 use epd_ssd1681::color::TriColor::{Black, Red, White};
 use epd_ssd1681::driver::Ssd1681;
 use epd_ssd1681::graphics::{Display, DisplayRotation};
-#[cfg(target_os = "none")]
 use panic_probe as _;
-#[cfg(target_os = "none")]
 use rp_pico as bsp;
-#[cfg(target_os = "none")]
 use rp_pico::hal::clocks::init_clocks_and_plls;
-#[cfg(target_os = "none")]
 use rp_pico::hal::fugit::RateExtU32;
-#[cfg(target_os = "none")]
 use rp_pico::hal::gpio::FunctionSpi;
-#[cfg(target_os = "none")]
 use rp_pico::hal::{spi, Clock, Sio, Watchdog};
-#[cfg(target_os = "none")]
 use rp_pico::{entry, pac};
 
-#[cfg(target_os = "none")]
 #[entry]
 fn main() -> ! {
     info!("Program start");
@@ -169,10 +159,9 @@ fn main() -> ! {
 /// Wrapper around `Delay` to implement the embedded-hal 1.0 delay.
 ///
 /// This can be removed when a new version of the `cortex_m` crate is released.
-#[cfg(target_os = "none")]
+
 struct DelayCompat(cortex_m::delay::Delay);
 
-#[cfg(target_os = "none")]
 impl embedded_hal::delay::DelayNs for DelayCompat {
     fn delay_ns(&mut self, mut ns: u32) {
         while ns > 1000 {

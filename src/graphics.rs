@@ -8,10 +8,11 @@ use embedded_graphics_core::pixelcolor::{raw, BinaryColor};
 use embedded_graphics_core::Pixel;
 
 /// Rotation of the display.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 #[repr(u8)]
 pub enum DisplayRotation {
     /// No rotation, normal display
+    #[default]
     Rotate0,
     /// Rotate by 90 degress clockwise
     Rotate90,
@@ -19,12 +20,6 @@ pub enum DisplayRotation {
     Rotate180,
     /// Rotate 270 degress clockwise, recommend
     Rotate270,
-}
-
-impl Default for DisplayRotation {
-    fn default() -> Self {
-        DisplayRotation::Rotate0
-    }
 }
 pub struct Display {
     black_fbuf: Framebuffer<
@@ -47,6 +42,11 @@ pub struct Display {
     is_inverted: bool,
 }
 
+impl Default for Display {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl Display {
     pub fn new() -> Self {
         Display {
@@ -83,6 +83,7 @@ impl Display {
         let _ = self.red_fbuf.clear(red);
     }
 
+    #[allow(dead_code)]
     fn set_pixel(&mut self, x: u32, y: u32, color: TriColor) {
         let (index, bit) = find_position(x, y, WIDTH as u32, HEIGHT as u32, self.rotation);
         let index = index as usize;
@@ -115,18 +116,13 @@ impl Display {
         self.is_inverted
     }
 
-    pub fn black_data(
-        &self,
-    ) -> &[u8; { buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize) }] {
+    pub fn black_data(&self) -> &[u8; buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize)] {
         self.black_fbuf.data()
     }
-    pub fn red_data(
-        &self,
-    ) -> &[u8; { buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize) }] {
+    pub fn red_data(&self) -> &[u8; buffer_size::<BinaryColor>(WIDTH as usize, HEIGHT as usize)] {
         self.red_fbuf.data()
     }
 }
-
 fn find_rotation(x: u32, y: u32, width: u32, height: u32, rotation: DisplayRotation) -> (u32, u32) {
     let nx;
     let ny;

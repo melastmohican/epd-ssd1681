@@ -45,7 +45,7 @@ where
         self.interface.wait_until_idle(delay);
 
         self.interface
-            .cmd_with_data(Cmd::DRIVER_CONTROL, &[(HEIGHT - 1) as u8, 0x00, 0x00])?;
+            .cmd_with_data(Cmd::DRIVER_CONTROL, &[(HEIGHT - 1), 0x00, 0x00])?;
 
         self.interface
             .cmd_with_data(Cmd::DATA_MODE, &[Flag::DATA_ENTRY_INCRY_INCRX])?;
@@ -67,13 +67,13 @@ where
     /// Update the whole BW buffer on the display driver
     pub fn update_bw_frame(&mut self, buffer: &[u8]) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-        self.interface.cmd_with_data(Cmd::WRITE_BWRAM, &buffer)
+        self.interface.cmd_with_data(Cmd::WRITE_BWRAM, buffer)
     }
 
     /// Update the whole Red buffer on the display driver
     pub fn update_red_frame(&mut self, buffer: &[u8]) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-        self.interface.cmd_with_data(Cmd::WRITE_REDRAM, &buffer)
+        self.interface.cmd_with_data(Cmd::WRITE_REDRAM, buffer)
     }
 
     /// Start an update of the whole display
