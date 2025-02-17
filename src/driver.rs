@@ -1,11 +1,11 @@
 use crate::cmd::Cmd;
+use crate::color::TriColor::{Red, White};
 use crate::flag::Flag;
 use crate::interface::{DisplayError, DisplayInterface};
 use crate::{HEIGHT, WIDTH};
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 use embedded_hal::spi::SpiDevice;
-use crate::color::TriColor::{Red, White};
 
 /// A configured display with a hardware interface.
 pub struct Ssd1681<SPI, CS, BUSY, DC, RST> {
@@ -90,7 +90,7 @@ where
     /// Make the whole black and white frame on the display driver white
     pub fn clear_bw_frame(&mut self) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-        
+
         let color = White.into();
 
         self.interface.cmd(Cmd::WRITE_BWRAM)?;
@@ -102,7 +102,7 @@ where
     /// Make the whole red frame on the display driver white
     pub fn clear_red_frame(&mut self) -> Result<(), DisplayError> {
         self.use_full_frame()?;
-        
+
         let color = Red.into();
 
         self.interface.cmd(Cmd::WRITE_REDRAM)?;

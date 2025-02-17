@@ -40,3 +40,15 @@ impl From<TriColor> for u8 {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_u8() {
+        assert_eq!(TriColor::Black, TriColor::from(0u8));
+        assert_eq!(TriColor::White, TriColor::from(1u8));
+        assert_eq!(TriColor::Red, TriColor::from(2u8));
+    }
+}

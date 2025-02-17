@@ -153,10 +153,7 @@ fn find_rotation(x: u32, y: u32, width: u32, height: u32, rotation: DisplayRotat
 
 fn find_position(x: u32, y: u32, width: u32, height: u32, rotation: DisplayRotation) -> (u32, u8) {
     let (nx, ny) = find_rotation(x, y, width, height, rotation);
-    (
-        nx / 8 + ((width + 7) / 8) * ny,
-        0x80 >> (nx % 8),
-    )
+    (nx / 8 + ((width + 7) / 8) * ny, 0x80 >> (nx % 8))
 }
 
 impl DrawTarget for Display {
